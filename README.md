@@ -127,4 +127,4 @@ To run the system using the WiFi HaLow technology, follow the instructions avail
 *The files mentioned in the document are available in the [`halow/`](src/halow) directory.*
 
 ## About The Code
-Refer to [`Specifications.pdf`](docs/Specifications.pdf), [`Presentación`](docs/Presentación.pdf), and [`Tecnologías.pdf`](docs/Comparisons/Tecnologías.pdf) for a high-level overview of the project.
+Refer to [`Specifications.pdf`](docs/Specifications.pdf), [`Tecnologías.pdf`](docs/Comparisons/Tecnologías.pdf), and [`Presentación`](docs/Presentación.pdf) for a high-level overview of the project.
