@@ -27,6 +27,9 @@ This project was developed using the following hardware:
 - [HTCC-AB02A](https://heltec.org/project/htcc-ab02a/)
 - [SX-NEWAH-EVK-US](https://www.silextechnology.com/connectivity-solutions/embedded-wireless/sx-newah-evaluation)
 
+### Arduino
+Flash the Arduino Shield with the [`sensor.ino`](src/arduino/sensor.ino) code.
+
 ### MQTT Broker
 Follow the steps in [`MQTT Broker.pdf`](docs/Configs/[MQTT%20Broker]%20Configs.pdf) to set up the MQTT Broker.
 
