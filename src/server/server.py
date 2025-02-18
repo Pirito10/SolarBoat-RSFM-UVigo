@@ -13,8 +13,8 @@ server_running = True
 flask_server = None
    
 # VARIABLES GLOBALES
-DOMAIN = "domain.dyndns.org"
-PORT = 1883
+BROKER_DOMAIN = "domain.dyndns.org"
+BROKER_PORT = 1883
 dataReceived = {}
 dataServer = "Datos del servidor"
 latest_frame = None
@@ -284,7 +284,7 @@ def on_message(client, userdata, msg):
 def start_mqtt():
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect(DOMAIN, PORT)
+    client.connect(BROKER_DOMAIN, BROKER_PORT)
     client.loop_start()
    
 #******************************************************************#
