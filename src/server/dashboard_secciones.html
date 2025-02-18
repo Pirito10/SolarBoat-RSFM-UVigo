@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        #video-stream {
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #sensor-data {
+            margin: 10px;
+            background: #fff;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 660px;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            text-align: center;
+            color: #333;
+        }
+
+        select {
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .alert-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .alert-section h1 {
+            color: red;
+            font-size: 30px;
+        }
+
+        .red-button {
+            width: 150px;
+            height: 150px;
+            background-color: red;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .red-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .red-button:active {
+            transform: scale(0.9);
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script>
+        // Función para navegar a las rutas específicas de cada sensor o todos los datos juntos
+        function navigateToSensorData() {
+            const sensorType = document.getElementById("sensor-selector").value;
+            if (sensorType) {
+                window.location.href = `/database/${sensorType}`;
+            } else {
+                window.location.href = `/database`;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Video Stream -->
+    <div id="video-stream">
+        <img src="/video_feed" width="640" height="480" alt="Video Stream">
+    </div>
+
+    <!-- Sensor Data -->
+    <div id="sensor-data">
+        <h1>MQTT Sensor Data</h1>
+
+        <!-- Desplegable para seleccionar sensor -->
+        <select id="sensor-selector" onchange="navigateToSensorData()">
+            <option value="" disabled selected>Selecciona un sensor</option>
+            <option value="temperature">Temperatura</option>
+            <option value="distance">Distancia</option>
+            <option value="acceleration">Aceleración</option>
+            <option value="gyroscope">Giroscopio</option>
+            <option value="compass">Compás</option>
+            <option value="heading">Heading</option>
+            <option value="tilt_heading">Tilt Heading</option>
+            <option value="">Histórico de Datos</option>
+        </select>
+
+        <!-- Gráfica -->
+        <canvas id="sensorChart" width="640" height="480"></canvas>
+    </div>
+
+    <!-- Alert Section -->
+    <div class="alert-section">
+        <h1>¡NO PULSES EL BOTÓN!</h1>
+        <form action="/stop" method="post">
+            <button type="submit" class="red-button">NO</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+        const sensorChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor Values',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Función para actualizar el gráfico con nuevos datos
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('/mqttSensorData');
+                const data = await response.json();
+
+                console.log('Datos recibidos:', data); // Mostrar datos en la consola
+
+                const labels = [];
+                const values = [];
+                const backgroundColors = [];
+                const borderColors = [];
+
+                // Esquema de colores fijo para cada variable
+                const colorMap = {
+                    temperature: 'rgba(255, 99, 132, 0.7)', // Rojo
+                    heading: 'rgba(54, 162, 235, 0.7)', // Azul
+                    tilt_heading: 'rgba(255, 255, 255, 0.7)', // Negro
+                    acceleration: 'rgba(255, 206, 86, 0.7)', // Amarillo
+                    compass: 'rgba(75, 192, 192, 0.7)', // Verde
+                    gyroscope: 'rgba(153, 102, 255, 0.7)', // Morado
+                    distance: 'rgba(201, 203, 207, 0.7)' // Gris
+                };
+
+                // Procesar los datos
+                for (const [key, value] of Object.entries(data)) {
+                    if (key === "acceleration" || key === "compass" || key === "gyroscope") {
+                        const [x, y, z] = value.split(',').map(Number);
+
+                        labels.push(`${key.charAt(0).toUpperCase() + key.slice(1)} X`);
+                        labels.push(`${key.charAt(0).toUpperCase() + key.slice(1)} Y`);
+                        labels.push(`${key.charAt(0).toUpperCase() + key.slice(1)} Z`);
+
+                        values.push(x, y, z);
+
+                        const color = colorMap[key] || colorMap.default;
+                        backgroundColors.push(color, color, color);
+                        borderColors.push(color, color, color);
+                    } else {
+                        labels.push(key);
+                        values.push(value);
+
+                        const color = colorMap[key] || colorMap.default;
+                        backgroundColors.push(color);
+                        borderColors.push(color);
+                    }
+                }
+
+                // Actualizar el gráfico
+                sensorChart.data.labels = labels;
+                sensorChart.data.datasets[0].data = values;
+                sensorChart.data.datasets[0].backgroundColor = backgroundColors;
+                sensorChart.data.datasets[0].borderColor = borderColors;
+                sensorChart.update();
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+            }
+        }
+
+        // Actualiza el gráfico cada 1 segundo
+        setInterval(fetchSensorData, 1000);
+        fetchSensorData();
+    </script>
+</body>
+
+</html>

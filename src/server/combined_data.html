@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Datos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Botón para volver a la página principal -->
+    <a href="/" class="back-button">Volver a Inicio</a>
+
+    <h1>Histórico de Datos</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Temperatura</th>
+                <th>Distancia</th>
+                <th>Aceleración</th>
+                <th>Giroscopio</th>
+                <th>Compás</th>
+                <th>Heading</th>
+                <th>Tilt Heading</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(100) %}
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ combined_data.temperature[i] if i < combined_data.temperature|length else '-' }}</td>
+                <td>{{ combined_data.distance[i] if i < combined_data.distance|length else '-' }}</td>
+                <td>{{ combined_data.acceleration[i] if i < combined_data.acceleration|length else '-' }}</td>
+                <td>{{ combined_data.gyroscope[i] if i < combined_data.gyroscope|length else '-' }}</td>
+                <td>{{ combined_data.compass[i] if i < combined_data.compass|length else '-' }}</td>
+                <td>{{ combined_data.heading[i] if i < combined_data.heading|length else '-' }}</td>
+                <td>{{ combined_data.tilt_heading[i] if i < combined_data.tilt_heading|length else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>
